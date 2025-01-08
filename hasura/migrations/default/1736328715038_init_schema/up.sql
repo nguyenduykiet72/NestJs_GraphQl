@@ -1,6 +1,3 @@
-DROP TABLE IF EXISTS "public"."Post";
-DROP TABLE IF EXISTS "public"."User";
-
 CREATE TABLE "public"."User" (
     "id" SERIAL PRIMARY KEY,
     "name" TEXT,

@@ -1,3 +1,6 @@
+- "!include public_Category.yaml"
 - "!include public_Post.yaml"
+- "!include public_PostTag.yaml"
+- "!include public_Tag.yaml"
 - "!include public_User.yaml"
 - "!include public__prisma_migrations.yaml"
