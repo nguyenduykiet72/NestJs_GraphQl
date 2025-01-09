@@ -1,6 +1,12 @@
-actions: []
+actions:
+  - name: registerUser
+    definition:
+      kind: synchronous
+      handler: http://172.17.0.1:9090/actions/register
 custom_types:
   enums: []
-  input_objects: []
-  objects: []
+  input_objects:
+    - name: RegisterUserInput
+  objects:
+    - name: RegisterUserOutput
   scalars: []

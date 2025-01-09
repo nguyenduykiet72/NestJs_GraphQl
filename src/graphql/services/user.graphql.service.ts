@@ -4,9 +4,15 @@ import {
   CreateUserInput,
   CreateUserResponse,
   CreateUserWithPostsResponse,
+  RegisterUserInput,
+  RegisterUserResponse,
   User,
 } from '../types/user.types';
-import { CREATE_USER, CREATE_USER_WITH_POSTS } from '../mutations/user.mutations';
+import {
+  CREATE_USER,
+  CREATE_USER_WITH_POSTS,
+  REGISTER_USER,
+} from '../mutations/user.mutations';
 import { GET_USER_BY_ID, GET_USERS } from '../queries/user.queries';
 import { GraphQLException } from '../exception/graphql.exception';
 
@@ -22,7 +28,7 @@ export class UserGraphQLService {
         CREATE_USER,
         input,
       );
-      return response.insert_User_one;
+      return response.insert_users_one;
     } catch (error) {
       throw new GraphQLException(error);
     }
@@ -65,7 +71,19 @@ export class UserGraphQLService {
         CREATE_USER_WITH_POSTS,
         input,
       );
-      return response.insert_User_one;
+      return response.insert_users_one;
+    } catch (error) {
+      throw new GraphQLException(error);
+    }
+  }
+
+  async registerUser(input: RegisterUserInput): Promise<User> {
+    try {
+      const response = await this.client.request<RegisterUserResponse>(
+        REGISTER_USER,
+        input,
+      );
+      return response.insert_users_one;
     } catch (error) {
       throw new GraphQLException(error);
     }

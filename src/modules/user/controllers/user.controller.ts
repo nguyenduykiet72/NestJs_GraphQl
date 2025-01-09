@@ -1,10 +1,11 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { UserService } from './user.service';
+import { UserService } from '../services/user.service';
 import { CreateUserInput, User } from 'src/graphql/types/user.types';
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Post('')
   @Post()
   async createUser(@Body() userData: CreateUserInput): Promise<User> {
     return this.userService.createUser(userData);

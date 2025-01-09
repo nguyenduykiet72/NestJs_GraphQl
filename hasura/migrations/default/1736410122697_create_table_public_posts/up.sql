@@ -1,0 +1,1 @@
+CREATE TABLE "public"."posts" ("id" serial NOT NULL, "title" text, "published" boolean NOT NULL DEFAULT false, "author_id" integer NOT NULL, "created_at" timestamptz NOT NULL DEFAULT now(), "updated_at" timestamptz NOT NULL DEFAULT now(), PRIMARY KEY ("id") , FOREIGN KEY ("author_id") REFERENCES "public"."users"("id") ON UPDATE cascade ON DELETE cascade, UNIQUE ("id"));
