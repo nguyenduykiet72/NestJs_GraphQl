@@ -58,3 +58,7 @@ export interface CreatePostResponse {
 export interface RegisterUserResponse {
   insert_users_one: User;
 }
+
+export interface GetUserByEmailResponse {
+  users: User[];
+}

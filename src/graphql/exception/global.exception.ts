@@ -11,7 +11,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
-    // Xử lý HttpException
     if (exception instanceof HttpException) {
       const status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
@@ -20,14 +19,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         statusCode: status,
         timestamp: new Date().toISOString(),
         path: ctx.getRequest().url,
-        ...(typeof exceptionResponse === 'object'
-          ? exceptionResponse
-          : { message: exceptionResponse }),
+        message: Array.isArray(exceptionResponse['message'])
+          ? exceptionResponse['message'][0]
+          : exceptionResponse['message'] || exceptionResponse,
       });
     } else {
-      // Xử lý các exception khác
       const status = HttpStatus.INTERNAL_SERVER_ERROR;
-
       response.status(status).json({
         statusCode: status,
         timestamp: new Date().toISOString(),

@@ -7,8 +7,9 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { hash } from 'bcrypt';
+import { Users } from 'src/generated/graphql';
 import { UserGraphQLService } from 'src/graphql/services/user.graphql.service';
-import { User } from 'src/graphql/types/user.types';
+import { RegisterUserDto } from '../dto/register.dto';
 
 @Controller('actions')
 export class RegisterHandler {
@@ -17,7 +18,7 @@ export class RegisterHandler {
     private readonly jwtService: JwtService,
   ) {}
 
-  private generateJWT(user: User): string {
+  private generateJWT(user: Users): string {
     const payload = {
       sub: user.id,
       'https://hasura.io/jwt/claims': {
@@ -27,18 +28,15 @@ export class RegisterHandler {
       },
     };
     const token = this.jwtService.sign(payload);
-    console.log('token:::', token);
     return token;
   }
 
   @Post('/register')
-  async register(@Body() body: any) {
+  async register(@Body() body: { input: { input: RegisterUserDto } }) {
     try {
-      const input = body.input?.input || body;
-      if (!input?.password) {
-        throw new HttpException('Password is required', HttpStatus.BAD_REQUEST);
-      }
-
+      const {
+        input: { input },
+      } = body;
       const hashedPassword = await hash(input.password, 10);
 
       const user = await this.userGraphQLService.registerUser({
@@ -56,6 +54,13 @@ export class RegisterHandler {
         accessToken,
       };
     } catch (error) {
+      if (
+        error.response?.errors?.[0]?.message.includes(
+          'Error during registration',
+        )
+      ) {
+        throw new HttpException('Email already exists', HttpStatus.CONFLICT);
+      }
       throw error;
     }
   }

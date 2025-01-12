@@ -8,7 +8,10 @@ import { HealthController } from './modules/health/health.controller';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }
+    ),
     UserModule,
     GraphQLModule
   ],

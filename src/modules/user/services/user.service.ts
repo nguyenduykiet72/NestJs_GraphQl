@@ -1,83 +1,100 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+// import { Injectable } from '@nestjs/common';
+// import { UserGraphQLService } from 'src/graphql/services/user.graphql.service';
+// import { CreateUserInput, User } from 'src/graphql/types/user.types';
+// @Injectable()
+// export class UserService {
+//   constructor(private readonly userGraphqlService: UserGraphQLService) {}
+//   async createUser(data: CreateUserInput): Promise<User> {
+//     return this.userGraphqlService.createUser(data);
+//   }
+
+//   async getAllUsers(): Promise<User[]> {
+//     return this.userGraphqlService.getUsers();
+//   }
+
+//   async getUserById(id: number): Promise<User> {
+//     return this.userGraphqlService.getUserById(id);
+//   }
+
+//   async createUserWithPosts(data: {
+//     name: string;
+//     email: string;
+//     posts: Array<{
+//       title: string;
+//       content?: string;
+//       published?: boolean;
+//     }>;
+//   }): Promise<User> {
+//     return this.userGraphqlService.createUserWithPosts(data);
+//   }
+// }
+
+import { Injectable } from '@nestjs/common';
+import { Posts, Users, Users_Insert_Input } from 'src/generated/graphql';
 import { UserGraphQLService } from 'src/graphql/services/user.graphql.service';
-// import { PrismaService } from 'src/prisma/prisma.service';
-// import { Prisma, User } from '@prisma/client';
-import { CreateUserInput, User } from 'src/graphql/types/user.types';
+
 @Injectable()
 export class UserService {
-  //   constructor(private readonly prisma: PrismaService) {}
-
-  //   async getUserById(
-  //     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
-  //   ): Promise<User | null> {
-  //     return this.prisma.user.findUnique({
-  //       where: userWhereUniqueInput,
-  //     });
-  //   }
-
-  //   async getAllUsers(params: {
-  //     skip?: number;
-  //     take?: number;
-  //     cursor?: Prisma.UserWhereUniqueInput;
-  //     orderBy?: Prisma.UserOrderByWithRelationInput;
-  //   }): Promise<User[]> {
-  //     const { skip, take, cursor, orderBy } = params;
-  //     return this.prisma.user.findMany({
-  //       skip,
-  //       take,
-  //       cursor,
-  //       orderBy,
-  //     });
-  //   }
-
-  //   async createUser(data: Prisma.UserCreateInput): Promise<User> {
-  //     try {
-  //       return this.prisma.user.create({ data });
-  //     } catch (error) {
-  //       throw new HttpException(
-  //         'Something went wrong',
-  //         HttpStatus.INTERNAL_SERVER_ERROR,
-  //       );
-  //     }
-  //   }
-
-  //   async updateUser(params: {
-  //     where: Prisma.UserWhereUniqueInput;
-  //     data: Prisma.UserUpdateInput;
-  //   }): Promise<User> {
-  //     const { where, data } = params;
-  //     return this.prisma.user.update({
-  //       data,
-  //       where,
-  //     });
-  //   }
-
-  //   async deleteUser(where: Prisma.UserWhereUniqueInput): Promise<User> {
-  //     return this.prisma.user.delete({ where });
-  //   }
   constructor(private readonly userGraphqlService: UserGraphQLService) {}
-  async createUser(data: CreateUserInput): Promise<User> {
-    return this.userGraphqlService.createUser(data);
+
+  async getAllUsers(): Promise<Users[]> {
+    const users = await this.userGraphqlService.getUsers();
+    return users.map((user) => ({
+      ...user,
+      posts: (user.posts || []).map((post) => ({
+        ...post,
+        user: user, // Thêm reference ngược lại user
+      })) as Posts[],
+      posts_aggregate: {
+        aggregate: null,
+        nodes: (user.posts || []).map((post) => ({
+          ...post,
+          user: user, // Thêm reference ngược lại user
+        })) as Posts[],
+      },
+    }));
   }
 
-  async getAllUsers(): Promise<User[]> {
-    return this.userGraphqlService.getUsers();
+  async getUserById(id: number): Promise<Users | null> {
+    const user = await this.userGraphqlService.getUserById(id);
+    if (!user) return null;
+    return {
+      ...user,
+      posts: (user.posts || []).map((post) => ({
+        ...post,
+        user: user,
+      })) as Posts[],
+      posts_aggregate: {
+        aggregate: null,
+        nodes: (user.posts || []).map((post) => ({
+          ...post,
+          user: user,
+        })) as Posts[],
+      },
+    };
   }
 
-  async getUserById(id: number): Promise<User> {
-    return this.userGraphqlService.getUserById(id);
+  async createUser(data: Users_Insert_Input): Promise<Users> {
+    const user = await this.userGraphqlService.createUser(data);
+    return {
+      ...user,
+      posts: [],
+      posts_aggregate: {
+        aggregate: null,
+        nodes: [],
+      },
+    };
   }
 
- 
-  async createUserWithPosts(data: {
-    name: string;
-    email: string;
-    posts: Array<{
-      title: string;
-      content?: string;
-      published?: boolean;
-    }>;
-  }): Promise<User> {
-    return this.userGraphqlService.createUserWithPosts(data);
+  async registerUser(data: Users_Insert_Input): Promise<Users> {
+    const user = await this.userGraphqlService.registerUser(data);
+    return {
+      ...user,
+      posts: [],
+      posts_aggregate: {
+        aggregate: null,
+        nodes: [],
+      },
+    };
   }
 }

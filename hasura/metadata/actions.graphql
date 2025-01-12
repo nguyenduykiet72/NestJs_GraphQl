@@ -1,4 +1,10 @@
 type Mutation {
+  login(
+    input: LoginInput!
+  ): LoginOutPut
+}
+
+type Mutation {
   registerUser(
     input: RegisterUserInput!
   ): RegisterUserOutput
@@ -10,7 +16,19 @@ input RegisterUserInput {
   password: String!
 }
 
+input LoginInput {
+  email: String!
+  password: String!
+}
+
 type RegisterUserOutput {
+  id: Int!
+  name: String!
+  email: String!
+  accessToken: String!
+}
+
+type LoginOutPut {
   id: Int!
   name: String!
   email: String!

@@ -1,4 +1,8 @@
 actions:
+  - name: login
+    definition:
+      kind: synchronous
+      handler: http://172.17.0.1:9090/actions/login
   - name: registerUser
     definition:
       kind: synchronous
@@ -7,6 +11,8 @@ custom_types:
   enums: []
   input_objects:
     - name: RegisterUserInput
+    - name: LoginInput
   objects:
     - name: RegisterUserOutput
+    - name: LoginOutPut
   scalars: []
